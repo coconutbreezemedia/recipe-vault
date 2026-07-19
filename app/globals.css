@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #1A1613;
+  color: #F4EEE4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbars for the app-shell feel */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Mobile-first app shell: center a phone-width column on larger screens */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background: #1A1613;
+}
