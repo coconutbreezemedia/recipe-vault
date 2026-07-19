@@ -69,3 +69,9 @@ export const ImageIcon = ({ size = 18, ...p }: P) => (
 export const CloseIcon = ({ size = 20, ...p }: P) => (
   <svg {...base(size)} {...p} strokeWidth={2}><path d="M6 6l12 12M18 6 6 18" /></svg>
 );
+export const ChevronLeftIcon = ({ size = 20, ...p }: P) => (
+  <svg {...base(size)} {...p} strokeWidth={2}><path d="m15 5-7 7 7 7" /></svg>
+);
+export const ChevronRightIcon = ({ size = 20, ...p }: P) => (
+  <svg {...base(size)} {...p} strokeWidth={2}><path d="m9 5 7 7-7 7" /></svg>
+);

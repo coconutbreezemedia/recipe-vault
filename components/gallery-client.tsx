@@ -130,8 +130,8 @@ export function GalleryClient({ recipes }: { recipes: Recipe[] }) {
         </div>
       )}
 
-      {/* FAB kept inside the centered phone column on any screen width */}
-      <div className="pointer-events-none fixed bottom-[90px] left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 justify-end px-4">
+      {/* FAB kept inside the centered phone column, clear of the tab bar + home indicator */}
+      <div className="pointer-events-none fixed left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 justify-end px-4 bottom-[calc(env(safe-area-inset-bottom,0px)+104px)]">
         <button
           type="button"
           onClick={() => navigate({ name: 'new' })}

@@ -12,7 +12,7 @@ const TABS: { view: ViewName; label: string; Icon: typeof HomeIcon }[] = [
 export function TabBar() {
   const { view, navigate } = useStore();
   return (
-    <nav className="sticky bottom-0 z-40 mx-auto flex w-full max-w-[480px] justify-around border-t border-line bg-[rgba(21,17,14,0.92)] px-6 pb-8 pt-3 backdrop-blur-lg">
+    <nav className="sticky bottom-0 z-40 mx-auto flex w-full max-w-[480px] justify-around border-t border-line bg-[rgba(21,17,14,0.92)] px-6 pt-3 backdrop-blur-lg pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
       {TABS.map(({ view: v, label, Icon }) => {
         const active = view.name === v;
         return (

@@ -1,31 +1,66 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { PlanEntry, Recipe, Meal } from '@/lib/types';
 import { MEALS } from '@/lib/types';
 import { useStore } from '@/lib/store';
-import { PlusIcon, TrashIcon, SparkIcon } from '@/components/icons';
+import { PlusIcon, TrashIcon, SparkIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 
-type WeekDay = { iso: string; dow: string; dom: number; today: boolean };
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export function PlannerClient({
-  week,
-  entries,
-  recipes,
-}: {
-  week: WeekDay[];
-  entries: PlanEntry[];
-  recipes: Recipe[];
-}) {
+function toISO(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Monday of the week that is `offset` weeks from the current week.
+function mondayForOffset(offset: number): Date {
+  const now = new Date();
+  const mondayOffset = (now.getDay() + 6) % 7;
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset + offset * 7);
+}
+
+function buildWeek(offset: number) {
+  const monday = mondayForOffset(offset);
+  const todayISO = toISO(new Date());
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    const iso = toISO(d);
+    return { iso, dow: DOW[d.getDay()], dom: d.getDate(), today: iso === todayISO };
+  });
+}
+
+export function PlannerClient({ entries, recipes }: { entries: PlanEntry[]; recipes: Recipe[] }) {
   const { addToPlan, removeFromPlan, generateGrocery, navigate } = useStore();
-  const [selected, setSelected] = useState(week.find((d) => d.today)?.iso || week[0].iso);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const week = useMemo(() => buildWeek(weekOffset), [weekOffset]);
+
+  const [selected, setSelected] = useState(() => {
+    const w = buildWeek(0);
+    return w.find((d) => d.today)?.iso ?? w[0].iso;
+  });
   const [openMeal, setOpenMeal] = useState<Meal | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const monthLabel = new Date(week[0].iso + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const changeWeek = (delta: number) => {
+    const next = weekOffset + delta;
+    setWeekOffset(next);
+    const w = buildWeek(next);
+    setSelected(w.find((d) => d.today)?.iso ?? w[0].iso);
+    setOpenMeal(null);
+  };
+
+  const rangeLabel = () => {
+    const start = new Date(week[0].iso + 'T00:00:00');
+    const end = new Date(week[6].iso + 'T00:00:00');
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const startStr = start.toLocaleDateString('en-US', opts);
+    const endStr = end.toLocaleDateString('en-US', start.getMonth() === end.getMonth() ? { day: 'numeric' } : opts);
+    const suffix = weekOffset === 0 ? ' · This week' : '';
+    return `${startStr} – ${endStr}${suffix}`;
+  };
 
   const recipeById = (id?: string) => recipes.find((r) => r.id === id);
 
@@ -41,10 +76,28 @@ export function PlannerClient({
   };
 
   return (
-    <div className="min-h-screen pb-28">
+    <div className="min-h-screen pb-36">
       <header className="p-4 pt-6">
-        <p className="text-sm text-muted">{monthLabel}</p>
         <h1 className="text-2xl font-bold text-ink">Meal Plan</h1>
+        <div className="mt-2 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => changeWeek(-1)}
+            aria-label="Previous week"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-surface text-sub"
+          >
+            <ChevronLeftIcon size={18} />
+          </button>
+          <span className="text-sm font-medium text-sub">{rangeLabel()}</span>
+          <button
+            type="button"
+            onClick={() => changeWeek(1)}
+            aria-label="Next week"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-surface text-sub"
+          >
+            <ChevronRightIcon size={18} />
+          </button>
+        </div>
       </header>
 
       <div className="flex gap-2 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -132,16 +185,17 @@ export function PlannerClient({
         })}
       </div>
 
-      <div className="sticky bottom-0 mt-8 border-t border-line bg-bg p-4">
+      <div className="mt-10 px-4">
         <button
           type="button"
           onClick={handleGenerate}
           disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green px-4 py-3 font-semibold text-bg disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green px-4 py-4 font-semibold text-bg shadow-glow disabled:opacity-50"
         >
           <SparkIcon size={18} />
           Generate grocery list
         </button>
+        <p className="mt-2 text-center text-xs text-muted">Builds a list from the week shown above.</p>
       </div>
     </div>
   );

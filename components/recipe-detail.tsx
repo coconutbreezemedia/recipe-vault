@@ -152,7 +152,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         )}
       </div>
 
-      <div className="sticky bottom-0 mt-8 border-t border-line bg-bg p-4">
+      <div className="sticky bottom-0 mt-8 border-t border-line bg-bg p-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
         {addedMeal ? (
           <div className="w-full rounded-2xl bg-green px-4 py-3 text-center font-semibold text-bg">
             Added to {addedMeal} today

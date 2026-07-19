@@ -208,7 +208,7 @@ export function RecipeForm({ recipe, mode }: { recipe?: Recipe; mode: 'new' | 'e
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 
-        <div className="sticky bottom-0 -mx-4 border-t border-line bg-bg px-4 py-4">
+        <div className="sticky bottom-0 -mx-4 border-t border-line bg-bg px-4 py-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
           <button
             type="submit"
             disabled={saving}
