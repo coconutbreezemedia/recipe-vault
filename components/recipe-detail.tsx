@@ -65,7 +65,7 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
   return (
     <div className="min-h-screen pb-28">
       {shareMsg && (
-        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-xl border border-green/40 bg-bg/95 px-4 py-2.5 text-sm text-green shadow-glow backdrop-blur-sm">
+        <div className="fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+16px)] z-50 -translate-x-1/2 rounded-xl border border-green/40 bg-bg/95 px-4 py-2.5 text-sm text-green shadow-glow backdrop-blur-sm">
           {shareMsg}
         </div>
       )}
@@ -81,12 +81,12 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
           type="button"
           onClick={back}
           aria-label="Back"
-          className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-xl bg-black/40 text-ink backdrop-blur-sm"
+          className="absolute left-4 top-[calc(env(safe-area-inset-top,0px)+16px)] flex h-10 w-10 items-center justify-center rounded-xl bg-black/40 text-ink backdrop-blur-sm"
         >
           <BackIcon size={20} />
         </button>
 
-        <div className="absolute right-4 top-4 flex items-center gap-2">
+        <div className="absolute right-4 top-[calc(env(safe-area-inset-top,0px)+16px)] flex items-center gap-2">
           <button
             type="button"
             onClick={handleShare}

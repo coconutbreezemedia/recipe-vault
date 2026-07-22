@@ -104,7 +104,7 @@ export default function SharePage() {
   const { photoUrl, name, category, timeMin, servings, calories, ingredients, instructions, notes } = recipe;
 
   return (
-    <div className="app-shell min-h-[100dvh] px-5 py-8">
+    <div className="app-shell min-h-[100dvh] px-5 pb-8 pt-[calc(env(safe-area-inset-top,0px)+32px)]">
       <div className="mx-auto max-w-md">
         {photoUrl && (
           <img

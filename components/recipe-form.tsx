@@ -104,7 +104,7 @@ export function RecipeForm({ recipe, mode }: { recipe?: Recipe; mode: 'new' | 'e
 
   return (
     <div className="min-h-screen pb-28">
-      <div className="flex items-center gap-3 p-4 pt-6">
+      <div className="flex items-center gap-3 p-4 pt-[calc(env(safe-area-inset-top,0px)+24px)]">
         <button
           type="button"
           onClick={back}

@@ -77,7 +77,7 @@ export function PlannerClient({ entries, recipes }: { entries: PlanEntry[]; reci
 
   return (
     <div className="min-h-screen pb-36">
-      <header className="p-4 pt-6">
+      <header className="p-4 pt-[calc(env(safe-area-inset-top,0px)+24px)]">
         <h1 className="text-2xl font-bold text-ink">Meal Plan</h1>
         <div className="mt-2 flex items-center justify-between">
           <button

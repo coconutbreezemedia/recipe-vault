@@ -24,7 +24,7 @@ export function GroceryClient({ items }: { items: GroceryItem[] }) {
 
   return (
     <div className="min-h-screen pb-28">
-      <header className="p-4 pt-6">
+      <header className="p-4 pt-[calc(env(safe-area-inset-top,0px)+24px)]">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted">From this week&apos;s plan</p>

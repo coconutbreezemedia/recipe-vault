@@ -67,7 +67,7 @@ export function Settings() {
 
   return (
     <div className="min-h-screen pb-16">
-      <div className="flex items-center gap-3 p-4 pt-6">
+      <div className="flex items-center gap-3 p-4 pt-[calc(env(safe-area-inset-top,0px)+24px)]">
         <button type="button" onClick={back} aria-label="Back" className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface text-ink">
           <BackIcon size={20} />
         </button>

@@ -32,7 +32,7 @@ export function GalleryClient({ recipes }: { recipes: Recipe[] }) {
 
   return (
     <div className="min-h-screen pb-28">
-      <header className="flex items-center justify-between p-4 pt-6">
+      <header className="flex items-center justify-between p-4 pt-[calc(env(safe-area-inset-top,0px)+24px)]">
         <div>
           <p className="text-sm text-muted">Hi Reba</p>
           <h1 className="text-2xl font-bold text-ink">What&apos;s cooking?</h1>
