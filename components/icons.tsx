@@ -75,3 +75,6 @@ export const ChevronLeftIcon = ({ size = 20, ...p }: P) => (
 export const ChevronRightIcon = ({ size = 20, ...p }: P) => (
   <svg {...base(size)} {...p} strokeWidth={2}><path d="m9 5 7 7-7 7" /></svg>
 );
+export const ShareIcon = ({ size = 18, ...p }: P) => (
+  <svg {...base(size)} {...p}><circle cx="6" cy="12" r="2.6" /><circle cx="17.5" cy="5.5" r="2.6" /><circle cx="17.5" cy="18.5" r="2.6" /><path d="m8.4 10.8 6.8-4M8.4 13.2l6.8 4" /></svg>
+);

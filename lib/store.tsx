@@ -14,6 +14,7 @@ import {
   type RecipeInput,
 } from './types';
 import { SEED_RECIPES } from './seed';
+import { initSync, onLocalStateChange } from './sync';
 
 /* ---------- in-app navigation (SPA, no server routes) ---------- */
 export type ViewName = 'gallery' | 'detail' | 'new' | 'edit' | 'plan' | 'grocery' | 'settings';
@@ -38,6 +39,7 @@ interface StoreValue {
   updateRecipe: (id: string, input: RecipeInput) => Promise<void>;
   deleteRecipe: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
+  toggleShared: (id: string) => Promise<boolean>;
   getRecipe: (id: string) => Recipe | undefined;
 
   // plan
@@ -69,6 +71,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<View>({ name: 'gallery' });
   const history = useRef<View[]>([]);
 
+  // Live snapshot for the sync engine (initSync captures it once; refs stay fresh).
+  const stateRef = useRef<AppState>({ version: STATE_VERSION, recipes: [], plan: [], grocery: [] });
+  stateRef.current = { version: STATE_VERSION, recipes, plan, grocery };
+
   // Load persisted state once (seed sample recipes on very first run).
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +91,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         await saveState({ version: STATE_VERSION, recipes: seeded, plan: [], grocery: [] });
       }
       setReady(true);
+      // Wire the sync engine after the initial load so a cloud pull can't race
+      // the seed write. applyState persists merged state without re-notifying
+      // sync (the merge already updated its shadow, so the diff would be empty
+      // anyway — this just skips the wasted work).
+      initSync(
+        () => stateRef.current,
+        async (merged: AppState) => {
+          if (cancelled) return;
+          setRecipes(merged.recipes);
+          setPlan(merged.plan);
+          setGrocery(merged.grocery);
+          await saveState(merged);
+        },
+      );
     })();
     return () => {
       cancelled = true;
@@ -101,6 +121,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       grocery: next.grocery ?? grocery,
     };
     void saveState(snapshot);
+    void onLocalStateChange(snapshot);
   };
 
   // replace:true swaps the current view without adding a history entry — used
@@ -137,7 +158,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateRecipe = async (id: string, input: RecipeInput): Promise<void> => {
-    const nextRecipes = recipes.map((r) => (r.id === id ? { id, ...sanitize(input) } : r));
+    // Carry `shared` through edits — sanitize() only knows form fields.
+    const nextRecipes = recipes.map((r) => (r.id === id ? { id, shared: r.shared, ...sanitize(input) } : r));
     setRecipes(nextRecipes);
     persist({ recipes: nextRecipes });
   };
@@ -154,6 +176,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const nextRecipes = recipes.map((r) => (r.id === id ? { ...r, favorite: !r.favorite } : r));
     setRecipes(nextRecipes);
     persist({ recipes: nextRecipes });
+  };
+
+  const toggleShared = async (id: string): Promise<boolean> => {
+    let nowShared = false;
+    const nextRecipes = recipes.map((r) => {
+      if (r.id !== id) return r;
+      nowShared = !r.shared;
+      return { ...r, shared: nowShared };
+    });
+    setRecipes(nextRecipes);
+    persist({ recipes: nextRecipes });
+    return nowShared;
   };
 
   const getRecipe = (id: string) => recipes.find((r) => r.id === id);
@@ -212,7 +246,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setRecipes(state.recipes);
     setPlan(state.plan);
     setGrocery(state.grocery);
-    await saveState({ version: STATE_VERSION, recipes: state.recipes, plan: state.plan, grocery: state.grocery });
+    const snapshot: AppState = { version: STATE_VERSION, recipes: state.recipes, plan: state.plan, grocery: state.grocery };
+    await saveState(snapshot);
+    void onLocalStateChange(snapshot);
   };
 
   const value = useMemo<StoreValue>(
@@ -228,6 +264,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       updateRecipe,
       deleteRecipe,
       toggleFavorite,
+      toggleShared,
       getRecipe,
       addToPlan,
       removeFromPlan,

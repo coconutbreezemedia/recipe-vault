@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { isPinSet, setPin, clearPin } from '@/lib/pin';
 import { BackIcon, DownloadIcon, UploadIcon, LockIcon } from '@/components/icons';
+import { CloudSyncCard } from '@/components/cloud-sync-card';
 
 export function Settings() {
   const { back, exportBackup, importBackup, recipes } = useStore();
@@ -95,6 +96,8 @@ export function Settings() {
             </div>
           </div>
         </section>
+
+        <CloudSyncCard />
 
         {/* Passcode */}
         <section className="space-y-3">

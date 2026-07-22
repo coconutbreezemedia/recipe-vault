@@ -29,6 +29,8 @@ export interface Recipe {
   favorite: boolean;
   notes?: string;
   sourceUrl?: string;
+  /** When true, the recipe is readable by anyone via its public share link. */
+  shared?: boolean;
 }
 
 export interface RecipeInput {

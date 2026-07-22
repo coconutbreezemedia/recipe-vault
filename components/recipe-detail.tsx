@@ -4,13 +4,39 @@ import { useState } from 'react';
 import type { Recipe, Meal } from '@/lib/types';
 import { MEALS } from '@/lib/types';
 import { useStore } from '@/lib/store';
-import { BackIcon, HeartIcon, CheckIcon, EditIcon, TrashIcon } from '@/components/icons';
+import { BackIcon, HeartIcon, CheckIcon, EditIcon, TrashIcon, ShareIcon } from '@/components/icons';
+import { getSyncStatus, syncNow } from '@/lib/sync';
+import { isSyncConfigured } from '@/lib/supa-config';
+
+const SHARE_ORIGIN = 'https://recipevault.coconutbreeze.app';
 
 export function RecipeDetail({ recipe }: { recipe: Recipe }) {
-  const { navigate, back, deleteRecipe, toggleFavorite, addToPlan } = useStore();
+  const { navigate, back, deleteRecipe, toggleFavorite, toggleShared, addToPlan } = useStore();
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [showMeals, setShowMeals] = useState(false);
   const [addedMeal, setAddedMeal] = useState<Meal | null>(null);
+  const [shareMsg, setShareMsg] = useState('');
+
+  const handleShare = async () => {
+    if (!isSyncConfigured() || !getSyncStatus().enabled) {
+      window.alert('Turn on cloud sync in Settings first — sharing publishes the recipe through your vault.');
+      return;
+    }
+    const nowShared = await toggleShared(recipe.id);
+    void syncNow();
+    if (nowShared) {
+      const url = `${SHARE_ORIGIN}/share/#${recipe.id}`;
+      try {
+        await navigator.clipboard?.writeText(url);
+        setShareMsg('Public link copied!');
+      } catch {
+        setShareMsg(url);
+      }
+    } else {
+      setShareMsg('Sharing turned off.');
+    }
+    setTimeout(() => setShareMsg(''), 3500);
+  };
 
   const todayISO = new Date().toISOString().slice(0, 10);
 
@@ -38,6 +64,11 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
   return (
     <div className="min-h-screen pb-28">
+      {shareMsg && (
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-xl border border-green/40 bg-bg/95 px-4 py-2.5 text-sm text-green shadow-glow backdrop-blur-sm">
+          {shareMsg}
+        </div>
+      )}
       <div className="relative h-[310px] w-full overflow-hidden">
         {recipe.photoUrl ? (
           <img src={recipe.photoUrl} alt={recipe.name} className="h-full w-full object-cover" />
@@ -56,6 +87,14 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         </button>
 
         <div className="absolute right-4 top-4 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label={recipe.shared ? 'Stop sharing' : 'Share'}
+            className={`flex h-10 w-10 items-center justify-center rounded-xl backdrop-blur-sm ${recipe.shared ? 'bg-green text-bg' : 'bg-black/40 text-ink'}`}
+          >
+            <ShareIcon size={18} />
+          </button>
           <button
             type="button"
             onClick={() => navigate({ name: 'edit', id: recipe.id })}
