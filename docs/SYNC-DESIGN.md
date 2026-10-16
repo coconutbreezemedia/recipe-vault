@@ -32,5 +32,7 @@
 
 Free-plan projects pause when database activity across the past week is too low. A weekly check is not enough; Supabase looks for queries on most days. `scripts/supabase-keepalive.mjs` (GitHub Actions, daily at 13:15 UTC) calls `rv_keepalive()`, which updates `keepalive.last_ping`. Apply `supabase/keepalive.sql` once. The anon key may execute that function only. Pausing does not delete data; restore from the dashboard within a year.
 
+GitHub disables scheduled workflows on a public repo after 60 days without a commit on the default branch. `repo-activity.yml` commits `.github/last-activity` to `main` on the 1st and the 15th (13:30 UTC). A side branch would not count. The Actions token does not trigger the Pages deploy.
+
 ## Testing
 Staging schema on Supabase project `sdrcuangazrfpppsldkg` (Coconut Create). Two vault keys, two browser contexts: create→link→bidirectional edit→offline edit→delete propagation→share page. Production migration applied to `cbm-supa-base` via SQL editor (Juli) or provided credentials.

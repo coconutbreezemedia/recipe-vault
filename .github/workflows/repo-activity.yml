@@ -1,0 +1,32 @@
+name: Keep scheduled workflows enabled
+
+# Public repositories disable scheduled workflows after 60 days without a
+# commit on the default branch. A run of this workflow does not count.
+# Pushing a one-line stamp to main does. Twice a month leaves room for a
+# missed or delayed run. Cron cannot express "every 59 days".
+#
+# The default GITHUB_TOKEN does not start other workflows, so this push
+# does not rebuild GitHub Pages.
+on:
+  schedule:
+    - cron: '30 13 1,15 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Push activity stamp to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          date -u +%Y-%m-%dT%H:%M:%SZ > .github/last-activity
+          git add .github/last-activity
+          git commit -m "chore: record repository activity"
+          git push origin HEAD:main
