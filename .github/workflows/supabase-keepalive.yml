@@ -1,0 +1,23 @@
+name: Keep Supabase awake
+
+# Free-plan projects pause when the database sees little activity across
+# a week. One weekly ping still looks idle. This runs once a day and
+# updates a single keepalive row (see supabase/keepalive.sql).
+on:
+  schedule:
+    - cron: '15 13 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Write keepalive row
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/supabase-keepalive.mjs

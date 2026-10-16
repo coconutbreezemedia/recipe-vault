@@ -28,5 +28,9 @@
 - Recipe detail: Share toggle → sets `shared` flag (syncs), copies share URL.
 - `app/share/page.tsx`: static route; reads `#<recipeId>`, fetches via `rv_get_public_recipe`, renders read-only (no PIN gate, no tabs).
 
+## Staying awake
+
+Free-plan projects pause when database activity across the past week is too low. A weekly check is not enough; Supabase looks for queries on most days. `scripts/supabase-keepalive.mjs` (GitHub Actions, daily at 13:15 UTC) calls `rv_keepalive()`, which updates `keepalive.last_ping`. Apply `supabase/keepalive.sql` once. The anon key may execute that function only. Pausing does not delete data; restore from the dashboard within a year.
+
 ## Testing
 Staging schema on Supabase project `sdrcuangazrfpppsldkg` (Coconut Create). Two vault keys, two browser contexts: create→link→bidirectional edit→offline edit→delete propagation→share page. Production migration applied to `cbm-supa-base` via SQL editor (Juli) or provided credentials.
