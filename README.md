@@ -15,6 +15,8 @@ Photos and the vault stay in your Supabase project (`synced_records`). The anon 
 
 A free Supabase project **pauses after a quiet week** (the dashboard calls this inactive or resting). Opening the dashboard does not count. The database needs a few real queries on most days. `.github/workflows/supabase-keepalive.yml` does that once a day by updating one timestamp. Before the first run, restore the project if it is paused and run `supabase/keepalive.sql` in the Supabase SQL editor. The workflow can also be started by hand from the Actions tab.
 
+GitHub turns off those schedules on a public repo after 60 days without a commit on `main`. `.github/workflows/repo-activity.yml` pushes a one-line timestamp on the 1st and the 15th so that window stays open. That push uses the built-in Actions token, so it does not rebuild the site.
+
 ## Stack
 - Next.js 14 (static export) + React + TypeScript + Tailwind
 - On-device storage: IndexedDB (recipes, meal plan, grocery list)
